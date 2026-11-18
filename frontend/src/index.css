@@ -1,0 +1,4 @@
+/* Global styles live in App.css; keep this as a minimal reset. */
+* {
+  box-sizing: border-box;
+}
