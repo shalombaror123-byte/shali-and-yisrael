@@ -26,4 +26,6 @@ export const api = {
   updatePosition: (symbol, position) =>
     request(`/portfolio/${symbol}`, { method: 'PUT', body: JSON.stringify(position) }),
   deletePosition: (symbol) => request(`/portfolio/${symbol}`, { method: 'DELETE' }),
+  getMarketNews: () => request('/news'),
+  why: (symbol) => request(`/why/${symbol}`),
 }

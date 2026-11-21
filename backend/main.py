@@ -14,6 +14,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from news import explain_move, get_market_news, get_symbol_news
+
 DATA_FILE = Path(__file__).parent / "portfolio.json"
 _lock = threading.Lock()
 
@@ -233,3 +235,26 @@ def search(q: str):
         ]
     except Exception:
         return []
+
+
+# ---------- news routes ----------
+
+
+@app.get("/api/news")
+def market_news():
+    return {"news": get_market_news(), "updated_at": int(time.time())}
+
+
+@app.get("/api/news/{symbol}")
+def symbol_news(symbol: str):
+    symbol = symbol.upper().strip()
+    return {"symbol": symbol, "news": get_symbol_news(symbol)}
+
+
+@app.get("/api/why/{symbol}")
+def why(symbol: str):
+    symbol = symbol.upper().strip()
+    q = get_quotes([symbol])[symbol]
+    if "error" in q:
+        raise HTTPException(status_code=404, detail=q["error"])
+    return explain_move(symbol, q)
