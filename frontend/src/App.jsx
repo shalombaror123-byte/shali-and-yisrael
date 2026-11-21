@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from './api'
+import NewsTab from './News'
 import './App.css'
 
 const REFRESH_MS = 15000
@@ -164,7 +165,7 @@ function AddPositionForm({ onAdd }) {
   )
 }
 
-export default function App() {
+function PortfolioView() {
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
   const [secondsAgo, setSecondsAgo] = useState(0)
@@ -207,16 +208,13 @@ export default function App() {
   const s = data?.summary
 
   return (
-    <div className="page">
-      <header>
-        <h1>My Portfolio</h1>
-        <div className="refresh">
-          <button onClick={refresh}>Refresh</button>
-          <span className="muted">
-            {error ? 'backend unreachable' : `updated ${secondsAgo}s ago · live from Yahoo Finance`}
-          </span>
-        </div>
-      </header>
+    <>
+      <div className="refresh portfolio-refresh">
+        <button onClick={refresh}>Refresh</button>
+        <span className="muted">
+          {error ? 'backend unreachable' : `updated ${secondsAgo}s ago · live from Yahoo Finance`}
+        </span>
+      </div>
 
       {error && <div className="banner error">{error}</div>}
 
@@ -263,6 +261,33 @@ export default function App() {
         <p className="muted empty">No positions yet — add one above.</p>
       )}
       {!data && !error && <p className="muted">Loading…</p>}
+    </>
+  )
+}
+
+export default function App() {
+  const [tab, setTab] = useState('portfolio')
+
+  return (
+    <div className="page">
+      <header>
+        <h1>Portfolio Tracker</h1>
+        <nav className="tabs">
+          <button
+            className={tab === 'portfolio' ? 'tab active' : 'tab'}
+            onClick={() => setTab('portfolio')}
+          >
+            Portfolio
+          </button>
+          <button
+            className={tab === 'news' ? 'tab active' : 'tab'}
+            onClick={() => setTab('news')}
+          >
+            News
+          </button>
+        </nav>
+      </header>
+      {tab === 'portfolio' ? <PortfolioView /> : <NewsTab />}
     </div>
   )
 }

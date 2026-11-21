@@ -5,7 +5,12 @@ Yahoo Finance.
 
 - **Backend** (`backend/`): FastAPI + yfinance. Positions are stored in
   `backend/portfolio.json`. Prices are fetched live and cached for 15s.
+  Market news is aggregated from free RSS feeds (CNBC, Yahoo Finance,
+  MarketWatch, Seeking Alpha) plus Yahoo Finance search, cached for 60s.
 - **Frontend** (`frontend/`): React (Vite). Auto-refreshes every 15s.
+  Two tabs: **Portfolio** and **News** — the News tab shows the latest US
+  market headlines and can explain why a given stock is up/down by
+  matching recent headlines to likely catalyst categories.
 
 ## Run it
 
@@ -38,5 +43,8 @@ Then open http://localhost:5173
 | DELETE | `/api/portfolio/{sym}`  | Remove position                      |
 | GET    | `/api/quote/{sym}`      | Live quote for one symbol            |
 | GET    | `/api/search?q=`        | Symbol search                        |
+| GET    | `/api/news`             | Aggregated US market headlines       |
+| GET    | `/api/news/{sym}`       | Headlines for one ticker             |
+| GET    | `/api/why/{sym}`        | Heuristic explanation of the day's move |
 
 API docs: http://localhost:8000/docs while the backend is running.
