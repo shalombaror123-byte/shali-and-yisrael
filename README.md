@@ -33,10 +33,21 @@ npm run dev
 
 Then open http://localhost:5173
 
+## Versioning
+
+The app is versioned with semver in `version.json` (repo root). A GitHub
+Actions workflow bumps the patch version on every push to `main`, so each
+deployment ships a new version. The running version is shown in the app's
+footer and at `GET /api/version` (which also reports the git commit SHA on
+Vercel).
+
+To bump manually: `python3 scripts/bump_version.py [patch|minor|major]`.
+
 ## API
 
 | Method | Endpoint                | Description                          |
 | ------ | ----------------------- | ------------------------------------ |
+| GET    | `/api/version`          | App version, git SHA, deploy env     |
 | GET    | `/api/portfolio`        | Positions + live prices + totals     |
 | POST   | `/api/portfolio`        | Add position `{symbol, shares, avg_cost}` |
 | PUT    | `/api/portfolio/{sym}`  | Update shares / avg cost             |

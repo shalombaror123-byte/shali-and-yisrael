@@ -17,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from news import explain_move, get_market_news, get_symbol_news
+from version import VERSION
 
 DATA_FILE = Path(__file__).parent / "portfolio.json"
 _lock = threading.Lock()
@@ -188,6 +189,15 @@ def enrich(position: dict, quote: dict) -> dict:
 
 
 # ---------- routes ----------
+
+@app.get("/api/version")
+def app_version():
+    return {
+        "version": VERSION,
+        "commit": os.environ.get("VERCEL_GIT_COMMIT_SHA"),
+        "env": os.environ.get("VERCEL_ENV") or "local",
+    }
+
 
 @app.get("/api/portfolio")
 def portfolio():

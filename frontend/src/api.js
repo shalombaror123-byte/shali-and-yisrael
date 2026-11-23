@@ -20,6 +20,7 @@ async function request(path, options) {
 }
 
 export const api = {
+  getVersion: () => request('/version'),
   getPortfolio: () => request('/portfolio'),
   addPosition: (position) =>
     request('/portfolio', { method: 'POST', body: JSON.stringify(position) }),

@@ -273,6 +273,16 @@ function PortfolioView() {
 
 export default function App() {
   const [tab, setTab] = useState('portfolio')
+  const [apiVersion, setApiVersion] = useState(null)
+
+  useEffect(() => {
+    api
+      .getVersion()
+      .then((d) => setApiVersion(d.version))
+      .catch(() => {})
+  }, [])
+
+  const version = typeof __APP_VERSION__ === 'undefined' ? 'dev' : __APP_VERSION__
 
   return (
     <div className="page">
@@ -294,6 +304,10 @@ export default function App() {
         </nav>
       </header>
       {tab === 'portfolio' ? <PortfolioView /> : <NewsTab />}
+      <footer className="app-footer">
+        v{version}
+        {apiVersion && apiVersion !== version && ` · API v${apiVersion}`}
+      </footer>
     </div>
   )
 }

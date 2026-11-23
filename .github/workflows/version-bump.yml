@@ -1,0 +1,44 @@
+name: Bump version
+
+# Every push to main gets its own deployment on Vercel. This workflow bumps
+# the patch version and commits it back, so the follow-up deploy carries a
+# fresh version number. Pushes made with GITHUB_TOKEN do not retrigger
+# workflows, so this cannot loop; the `if` guard is a safety net for tokens
+# that do trigger runs.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: version-bump
+
+jobs:
+  bump:
+    if: ${{ !startsWith(github.event.head_commit.message, 'chore: bump version') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Bump and commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          python scripts/bump_version.py
+          version=$(python -c "import json; print(json.load(open('version.json'))['version'])")
+          git add version.json backend/version.py frontend/package.json
+          git commit -m "chore: bump version to ${version}"
+
+      - name: Push
+        run: |
+          git pull --rebase origin main
+          git push
