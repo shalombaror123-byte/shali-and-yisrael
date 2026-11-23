@@ -48,7 +48,7 @@ function PositionRow({ p, onDelete, onSave }) {
         <div className="symbol">{p.symbol}</div>
         <div className="name">{p.name || ''}</div>
       </td>
-      <td className="num">
+      <td className="num" data-label="Shares">
         {editing ? (
           <input
             type="number"
@@ -61,7 +61,7 @@ function PositionRow({ p, onDelete, onSave }) {
           p.shares
         )}
       </td>
-      <td className="num">
+      <td className="num" data-label="Avg Cost">
         {editing ? (
           <input
             type="number"
@@ -74,16 +74,22 @@ function PositionRow({ p, onDelete, onSave }) {
           fmtMoney(p.avg_cost, p.currency)
         )}
       </td>
-      <td className="num">
-        <div>{fmtMoney(p.price, p.currency)}</div>
-        <div className={`sub ${plClass(p.day_change_pct)}`}>
-          {fmtPct(p.day_change_pct)} today
+      <td className="num" data-label="Price">
+        <div>
+          <div>{fmtMoney(p.price, p.currency)}</div>
+          <div className={`sub ${plClass(p.day_change_pct)}`}>
+            {fmtPct(p.day_change_pct)} today
+          </div>
         </div>
       </td>
-      <td className="num">{fmtMoney(p.market_value, p.currency)}</td>
-      <td className={`num ${plClass(p.unrealized_pl)}`}>
-        <div>{fmtMoney(p.unrealized_pl, p.currency)}</div>
-        <div className="sub">{fmtPct(p.unrealized_pl_pct)}</div>
+      <td className="num" data-label="Value">
+        {fmtMoney(p.market_value, p.currency)}
+      </td>
+      <td className={`num ${plClass(p.unrealized_pl)}`} data-label="P/L">
+        <div>
+          <div>{fmtMoney(p.unrealized_pl, p.currency)}</div>
+          <div className="sub">{fmtPct(p.unrealized_pl_pct)}</div>
+        </div>
       </td>
       <td className="actions">
         {editing ? (
