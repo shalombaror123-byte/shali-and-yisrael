@@ -38,6 +38,7 @@ if extra_origin := os.environ.get("FRONTEND_URL"):
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
+    allow_origin_regex=r"https://shali-and-yisrael[a-z0-9-]*\.vercel\.app",
     allow_methods=["*"],
     allow_headers=["*"],
 )
