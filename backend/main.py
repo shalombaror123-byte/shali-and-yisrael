@@ -10,6 +10,7 @@ import threading
 import time
 from pathlib import Path
 
+import requests
 import yfinance as yf
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -45,15 +46,53 @@ app.add_middleware(
 
 
 # ---------- persistence ----------
+#
+# On Vercel the filesystem is read-only, so when a KV (Upstash Redis) store
+# is linked to the project its REST env vars are used instead of the file.
+# Locally (no env vars) we keep using portfolio.json.
+
+KV_URL = (
+    os.environ.get("KV_REST_API_URL")
+    or os.environ.get("UPSTASH_REDIS_REST_URL")
+    or ""
+).rstrip("/")
+KV_TOKEN = os.environ.get("KV_REST_API_TOKEN") or os.environ.get(
+    "UPSTASH_REDIS_REST_TOKEN"
+) or ""
+USE_KV = bool(KV_URL and KV_TOKEN)
+KV_KEY = "positions"
+_KV_HEADERS = {"Authorization": f"Bearer {KV_TOKEN}"}
+
 
 def load_positions() -> list[dict]:
-    if not DATA_FILE.exists():
-        return []
-    return json.loads(DATA_FILE.read_text())
+    if not USE_KV:
+        if not DATA_FILE.exists():
+            return []
+        return json.loads(DATA_FILE.read_text())
+
+    r = requests.get(f"{KV_URL}/get/{KV_KEY}", headers=_KV_HEADERS, timeout=10)
+    r.raise_for_status()
+    result = r.json().get("result")
+    if result is not None:
+        return json.loads(result)
+    # First run on Vercel: seed KV from the bundled portfolio.json.
+    seed = json.loads(DATA_FILE.read_text()) if DATA_FILE.exists() else []
+    if seed:
+        save_positions(seed)
+    return seed
 
 
 def save_positions(positions: list[dict]) -> None:
-    DATA_FILE.write_text(json.dumps(positions, indent=2))
+    if not USE_KV:
+        DATA_FILE.write_text(json.dumps(positions, indent=2))
+        return
+    r = requests.post(
+        f"{KV_URL}/set/{KV_KEY}",
+        headers=_KV_HEADERS,
+        data=json.dumps(positions),
+        timeout=10,
+    )
+    r.raise_for_status()
 
 
 # ---------- models ----------
