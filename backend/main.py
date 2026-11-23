@@ -5,6 +5,7 @@ Finance (via yfinance). Positions are persisted to portfolio.json.
 """
 
 import json
+import os
 import threading
 import time
 from pathlib import Path
@@ -26,9 +27,17 @@ _quote_cache: dict[str, tuple[float, dict]] = {}
 
 app = FastAPI(title="Portfolio API")
 
+allowed_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://shali-and-yisrael.vercel.app",
+]
+if extra_origin := os.environ.get("FRONTEND_URL"):
+    allowed_origins.append(extra_origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
